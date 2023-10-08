@@ -12,10 +12,23 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-list_postcode = ["E1 0AA", "E1 0AD", "E1 0AE",
-                 "E1 0AF", "E1 0AG", "E1 0AH", "E1 0AJ"]
+list_postcode = []
 
 driver = Driver(uc=True)
+
+# Specify the path to your CSV file
+# Replace with the actual path to your CSV file
+csv_file_path = 'postcodes unique.csv'
+
+# Read the CSV file and extract the "Postcode" column
+with open(csv_file_path, mode='r', newline='') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        postcode = row['Postcode']
+        list_postcode.append(postcode)
+
+# Print the list of postcodes
+print(list_postcode)
 
 
 def get_eacch_postcode(postcode, driver):
@@ -40,7 +53,12 @@ def get_eacch_postcode(postcode, driver):
 
     driver.click("#singlebutton")
 
-    time.sleep(3)
+    # Set an explicit wait with a timeout (e.g., 10 seconds)
+    wait = WebDriverWait(driver, 6)
+
+    # time.sleep(3)
+    wait.until(EC.presence_of_element_located(
+        (By.XPATH,  "//tr[@class='rows']")))
 
     # Find all the rows that need to be clicked
     rows_to_click = driver.find_elements(By.XPATH, "//tr[@class='rows']")
@@ -63,7 +81,9 @@ def get_eacch_postcode(postcode, driver):
             )
 
             element.click()
-            time.sleep(2)
+            # time.sleep(3)
+            wait.until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR,  "th.tlabel + th")))
 
             # Extract company details
             company_name = driver.find_element(
